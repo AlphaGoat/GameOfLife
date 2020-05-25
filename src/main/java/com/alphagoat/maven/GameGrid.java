@@ -35,27 +35,27 @@ public class GameGrid extends JPanel {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP));
         mainPanel.setBackground(BG);
         mainPanel.setSize(new Dimension(480, 480));
-        GridPanel[][] gridPanels = new GridPanel[num_rows][num_cols];
+        JPanel[][] gridPanels = new JPanel[num_rows][num_cols];
         grid = new GridIdentifier[num_rows][num_cols];
 
-//        Random rand = new Random();
+        Random rand = new Random();
         for (int i = 0; i < gridPanels.length; i++) {
             for (int j = 0; j < gridPanels[i].length; j++) {
-//                float r = rand.nextFloat();
-//                float g = rand.nextFloat();
-//                float b = rand.nextFloat();
-//                Color randomColor = new Color(r, g, b);
-//                gridPanels[i][j] = new JPanel();
-//                gridPanels[i][j].setSize(new Dimension(480 / num_rows, 480 / num_cols));
-                //gridPanels[i][j].setBackground(BG);
-//               gridPanels[i][j].setBorder(BorderFactory.createLineBorder(BG, 1, false));
-//               gridPanels[i][j].setBackground(EMPTY_COLOR);
-//                gridPanels[i][j].setSize(new Dimension(480 / num_rows, 480 / num_cols));
-//                mainPanel.add(gridPanels[i][j]);
+                float r = rand.nextFloat();
+                float g = rand.nextFloat();
+                float b = rand.nextFloat();
+                Color randomColor = new Color(r, g, b);
+                gridPanels[i][j] = new JPanel();
+                gridPanels[i][j].setSize(new Dimension(480 / num_rows, 480 / num_cols));
+              //gridPanels[i][j].setBackground(BG);
+               gridPanels[i][j].setBorder(BorderFactory.createLineBorder(BG, 1, false));
+               gridPanels[i][j].setBackground(EMPTY_COLOR);
+                gridPanels[i][j].setSize(new Dimension(480 / num_rows, 480 / num_cols));
+                mainPanel.add(gridPanels[i][j]);
             
                 /* Place empty space in game grid */    
-                gridPanels[i][j] = new GridPanel(GridIdentifier.EMPTY_SPACE);
-                grid[i][j] = GridIdentifier.EMPTY_SPACE;
+//                gridPanels[i][j] = new GridPanel(GridIdentifier.EMPTY_SPACE);
+//                grid[i][j] = GridIdentifier.EMPTY_SPACE;
             
             }
         }
