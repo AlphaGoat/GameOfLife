@@ -35,7 +35,7 @@ public class GameGrid extends JPanel {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP));
         mainPanel.setBackground(BG);
         mainPanel.setSize(new Dimension(480, 480));
-        JPanel[][] gridPanels = new JPanel[num_rows][num_cols];
+        GridPanel[][] gridPanels = new GridPanel[num_rows][num_cols];
         grid = new GridIdentifier[num_rows][num_cols];
 
         Random rand = new Random();
@@ -45,17 +45,18 @@ public class GameGrid extends JPanel {
                 float g = rand.nextFloat();
                 float b = rand.nextFloat();
                 Color randomColor = new Color(r, g, b);
-                gridPanels[i][j] = new JPanel();
-                gridPanels[i][j].setSize(new Dimension(480 / num_rows, 480 / num_cols));
-              //gridPanels[i][j].setBackground(BG);
-               gridPanels[i][j].setBorder(BorderFactory.createLineBorder(BG, 1, false));
-               gridPanels[i][j].setBackground(randomColor);
-                gridPanels[i][j].setSize(new Dimension(480 / num_rows, 480 / num_cols));
-                mainPanel.add(gridPanels[i][j]);
+//                gridPanels[i][j] = new JPanel();
+//                gridPanels[i][j].setSize(new Dimension(480 / num_rows, 480 / num_cols));
+//              //gridPanels[i][j].setBackground(BG);
+//               gridPanels[i][j].setBorder(BorderFactory.createLineBorder(BG, 1, false));
+//               gridPanels[i][j].setBackground(randomColor);
+//                gridPanels[i][j].setSize(new Dimension(480 / num_rows, 480 / num_cols));
+//                mainPanel.add(gridPanels[i][j]);
             
                 /* Place empty space in game grid */    
-//                gridPanels[i][j] = new GridPanel(GridIdentifier.EMPTY_SPACE);
-//                grid[i][j] = GridIdentifier.EMPTY_SPACE;
+                gridPanels[i][j] = new GridPanel(GridIdentifier.EMPTY_SPACE);
+                grid[i][j] = GridIdentifier.EMPTY_SPACE;
+                mainPanel.add(gridPanels[i][j]);
             
             }
         }
@@ -71,7 +72,7 @@ public class GameGrid extends JPanel {
         public GridPanel(GridIdentifier identifier) {
             this.identifier = identifier;
             setBorder(BorderFactory.createLineBorder(BG, 1, false));
-            setBackground(EMPTY_COLOR);
+            setBackground(identifier.getColor());
 //            addMouseListener(new MouseAdapter() {
 //                @Override
 //                public void mousePressed(MouseEvent e) {
@@ -101,13 +102,13 @@ public class GameGrid extends JPanel {
             public void mousePressed(MouseEvent e) {
                 switch(this.identifier.getValue()) {
                     case 0:
-                        setBackground(COLONY_COLOR);
                         this.identifier = GridIdentifier.COLONY;
+                        setBackground(GridIdentifier.COLONY.getColor());
                         break;
 
                     case 1:
-                        setBackground(EMPTY_COLOR);
                         this.identifier = GridIdentifier.EMPTY_SPACE;
+                        setBackground(GridIdentifier.EMPTY_SPACE.getColor());
                         break;
                 }
             }
@@ -116,16 +117,17 @@ public class GameGrid extends JPanel {
         public void changeColor() {
             /* Changes color of jpanel grid based on identity of 
              * the grid space it represents */
-            switch (this.identifier.getValue()) {
-
-                case 0:
-                    setBackground(COLONY_COLOR);
-                    break;
-
-                case 1:
-                    setBackground(EMPTY_COLOR);
-                    break;
-            }
+//            switch (this.identifier.getValue()) {
+//
+//                case 0:
+//                    setBackground(COLONY_COLOR);
+//                    break;
+//
+//                case 1:
+//                    setBackground(EMPTY_COLOR);
+//                    break;
+//            }
+            setBackground(this.identifier.getColor());
         }
     }
 //
