@@ -49,7 +49,7 @@ public class GameGrid extends JPanel {
                 gridPanels[i][j].setSize(new Dimension(480 / num_rows, 480 / num_cols));
               //gridPanels[i][j].setBackground(BG);
                gridPanels[i][j].setBorder(BorderFactory.createLineBorder(BG, 1, false));
-               gridPanels[i][j].setBackground(EMPTY_COLOR);
+               gridPanels[i][j].setBackground(randomColor);
                 gridPanels[i][j].setSize(new Dimension(480 / num_rows, 480 / num_cols));
                 mainPanel.add(gridPanels[i][j]);
             
