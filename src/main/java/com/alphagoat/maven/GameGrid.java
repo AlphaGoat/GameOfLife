@@ -6,6 +6,7 @@ package com.alphagoat.maven;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -15,80 +16,77 @@ import java.awt.event.MouseAdapter;
 
 import javax.swing.JPanel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.BorderFactory;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import java.util.Random;
 
-public class GameGrid extends JPanel {
+public class GameGrid {
 
-    private static int GAP = 3;
-    private static Color BG = Color.BLACK;
-    private static Color EMPTY_COLOR = Color.WHITE;
-    private static Color COLONY_COLOR = Color.YELLOW;
-    private static GridIdentifier[][] grid;
+    /* Dimensions of game grid */
+    private int num_rows;
+    private int num_cols;
+
+    private int GAP = 3;
+    private Color BG = Color.BLACK;
+    private Color EMPTY_COLOR = Color.WHITE;
+    private Color COLONY_COLOR = Color.YELLOW;
+    private boolean stopFlag = false;
+
+    private GridIdentifier[][] grid;
+    private GridPanel[][] gridPanels;
+
+    /* Rule set (responsible for taking in the current game grid
+     * as input and outputting the next state of the game grid as
+     * output */
+    private RuleSet ruleSet = new RuleSet();
+
+    public static void main(String args[]) {
+        GameGrid gameGrid = new GameGrid(20, 20);
+        gameGrid.constructGUI();
+    }
 
     public GameGrid(int num_rows, int num_cols) {
-        /* Initializes grid for game of life */
-        JPanel mainPanel = new JPanel(new GridLayout(num_rows, num_cols));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP));
+        this.num_rows = num_rows;
+        this.num_cols = num_cols;
+    }
+
+    private JPanel initGridPanel() {
+        /* Initializes grid panel for game of life */
+        JPanel mainPanel = new JPanel(new GridLayout(this.num_rows, this.num_cols));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(this.GAP, this.GAP, this.GAP, this.GAP));
         mainPanel.setBackground(BG);
         mainPanel.setSize(new Dimension(480, 480));
-        GridPanel[][] gridPanels = new GridPanel[num_rows][num_cols];
-        grid = new GridIdentifier[num_rows][num_cols];
+        this.gridPanels = new GridPanel[num_rows][num_cols];
+        this.grid = new GridIdentifier[num_rows][num_cols];
 
-        Random rand = new Random();
         for (int i = 0; i < gridPanels.length; i++) {
             for (int j = 0; j < gridPanels[i].length; j++) {
-                float r = rand.nextFloat();
-                float g = rand.nextFloat();
-                float b = rand.nextFloat();
-                Color randomColor = new Color(r, g, b);
-//                gridPanels[i][j] = new JPanel();
-//                gridPanels[i][j].setSize(new Dimension(480 / num_rows, 480 / num_cols));
-//              //gridPanels[i][j].setBackground(BG);
-//               gridPanels[i][j].setBorder(BorderFactory.createLineBorder(BG, 1, false));
-//               gridPanels[i][j].setBackground(randomColor);
-//                gridPanels[i][j].setSize(new Dimension(480 / num_rows, 480 / num_cols));
-//                mainPanel.add(gridPanels[i][j]);
-            
-                /* Place empty space in game grid */    
-                gridPanels[i][j] = new GridPanel(GridIdentifier.EMPTY_SPACE);
-                grid[i][j] = GridIdentifier.EMPTY_SPACE;
-                mainPanel.add(gridPanels[i][j]);
-            
+                /* Place empty space in game grid */
+                this.gridPanels[i][j] = new GridPanel(GridIdentifier.EMPTY_SPACE, i, j);
+                this.grid[i][j] = GridIdentifier.EMPTY_SPACE;
+                mainPanel.add(this.gridPanels[i][j]);
             }
         }
 
-        setLayout(new BorderLayout());
-        add(mainPanel, BorderLayout.CENTER);
-//        add(new JButton(new AssignColonyAction("Assign Colony")), BorderLayout.PAGE_END);
+        return mainPanel;
     }
 
     class GridPanel extends JPanel {
         GridIdentifier identifier;
+        int row;
+        int col;
 
-        public GridPanel(GridIdentifier identifier) {
+        public GridPanel(GridIdentifier identifier, int row, 
+                int col) {
             this.identifier = identifier;
+            this.row = row;
+            this.col = col;
             setBorder(BorderFactory.createLineBorder(BG, 1, false));
             setBackground(identifier.getColor());
-//            addMouseListener(new MouseAdapter() {
-//                @Override
-//                public void mousePressed(MouseEvent e) {
-//                    switch(this.identifier.getValue()) {
-//                        case 0:
-//                            setBackground(COLONY_COLOR);
-//                            this.identifier = GridIdentifier.COLONY;
-//                            break;
-//
-//                        case 1:
-//                            setBackground(EMPTY_COLOR);
-//                            this.identifier = GridIdentifier.EMPTY_SPACE;
-//                            break;
-//                    }
-//                }
-//            });
             addMouseListener(new PanelMouseListener(this.identifier));
         }
 
@@ -104,43 +102,98 @@ public class GameGrid extends JPanel {
                     case 0:
                         this.identifier = GridIdentifier.COLONY;
                         setBackground(GridIdentifier.COLONY.getColor());
+                        grid[row][col] = this.identifier;
                         break;
 
                     case 1:
                         this.identifier = GridIdentifier.EMPTY_SPACE;
                         setBackground(GridIdentifier.EMPTY_SPACE.getColor());
+                        grid[row][col] = this.identifier;
                         break;
                 }
             }
         }
 
         public void changeColor() {
-            /* Changes color of jpanel grid based on identity of 
-             * the grid space it represents */
-//            switch (this.identifier.getValue()) {
-//
-//                case 0:
-//                    setBackground(COLONY_COLOR);
-//                    break;
-//
-//                case 1:
-//                    setBackground(EMPTY_COLOR);
-//                    break;
-//            }
             setBackground(this.identifier.getColor());
         }
     }
-//
-    public enum IDENTIFIER {
-        EMPTY_SPACE,
-        COLONY
+
+    public JPanel initButtonPanel() {
+
+        JPanel buttonPanel = new JPanel();
+
+        /* Button to start game of life */
+        JButton startButton = new JButton();
+        startButton.setText("Start");
+        startButton.setVisible(true);
+        startButton.addActionListener(new StartListener());
+
+        /* Button to stop game of life at current grid state */
+        JButton stopButton = new JButton();
+        stopButton.setText("Stop");
+        stopButton.setVisible(true);
+        stopButton.addActionListener(new StopListener());
+
+        /* Combo box with predefined starting colonies */
+        buttonPanel.setLayout(new FlowLayout());
+        buttonPanel.add(startButton);
+        buttonPanel.add(stopButton);
+        buttonPanel.setVisible(true);
+
+        return buttonPanel;
+    }                           
+
+    Timer gameStartTimer = new Timer(500, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            startGameOfLife();
+        }
+    });
+
+    class StartListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            gameStartTimer.start();
+        }
     }
-//
-    private static void initGui() {
-        GameGrid mainPane = new GameGrid(20, 20);
+
+    class StopListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            gameStartTimer.stop();
+        }
+    }
+
+    private void startGameOfLife() {
+        /* Function that runs through main loop of game.
+         * Terminates after five turns of no change of state */
+    
+        /* Consult rule set to obtain the next state of the game */
+        this.grid = ruleSet.iterateGrid(this.grid);
+
+        /* Change grid display on gui to reflect new state of grid */
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[0].length; j++) {
+                if (this.grid[i][j] != this.gridPanels[i][j].identifier) {
+                    this.gridPanels[i][j].identifier = this.grid[i][j];
+                    this.gridPanels[i][j].changeColor();
+                }
+            }
+        }
+    }
+
+    public void constructGUI() {
+
+        /* Initialize panel holding game grid */
+        JPanel gameGridPanel = initGridPanel();
+
+        /* Initialize panel for game control buttons */
+        JPanel buttonPanel = initButtonPanel();
+
         JFrame frame = new JFrame("Game of Life");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.getContentPane().add(mainPane);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().add(gameGridPanel, BorderLayout.CENTER);
+        frame.add(buttonPanel, BorderLayout.SOUTH);
+
         frame.pack();
 //        frame.setLocationByPlatform(true);
         frame.setLocationRelativeTo(null);
@@ -149,13 +202,8 @@ public class GameGrid extends JPanel {
         frame.setSize(new Dimension(480, 480));
     }                           
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            initGui();
-        });
-    }
-
-                                
 }
+
+
 
 
