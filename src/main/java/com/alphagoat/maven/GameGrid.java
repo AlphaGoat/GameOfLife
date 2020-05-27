@@ -45,7 +45,41 @@ public class GameGrid {
     private RuleSet ruleSet = new RuleSet();
 
     public static void main(String args[]) {
-        GameGrid gameGrid = new GameGrid(20, 20);
+
+        int num_rows = 20;
+        int num_cols = 20;
+
+        /* Handle command line arguments */
+        if (args.length == 1) {
+            try {
+                num_rows = num_cols = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {
+                /* User input could not be parsed. Display help message */
+//                Help();
+                System.out.println("Usage: GameOfLife [options]\n" +
+                        "\toptional args:\n" +
+                            "\t\tnum_rows (int): number of rows in game grid. Will also\n" +
+                                "be used as number of columns if no num_cols arg is provided\n" +
+                            "\t\tnum_cols (int): number of columns in game grid.\n");
+            }
+        }
+
+        else if (args.length > 1) {
+            try {
+                num_rows = Integer.parseInt(args[0]);
+                num_cols = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                /* User input could not be parsed. Display help message */
+//                Help();
+                System.out.println("Usage: GameOfLife [options]\n" +
+                        "\toptional args:\n" +
+                            "\t\tnum_rows (int): number of rows in game grid. Will also\n" +
+                                "be used as number of columns if no num_cols arg is provided\n" +
+                            "\t\tnum_cols (int): number of columns in game grid.\n");
+            }
+        }
+
+        GameGrid gameGrid = new GameGrid(num_rows, num_cols);
         gameGrid.constructGUI();
     }
 
@@ -203,6 +237,19 @@ public class GameGrid {
     }                           
 
 }
+
+//class Help {
+//    public Help() {
+//        /* Prints out help message to user */
+//        System.out.println("Usage: GameOfLife [options]\n" +
+//                "\toptional args:\n" +
+//                    "\t\tnum_rows (int): number of rows in game grid. Will also\n" +
+//                        "be used as number of columns if no num_cols arg is provided\n" +
+//                    "\t\tnum_cols (int): number of columns in game grid.\n");
+//    }
+//}
+
+
 
 
 
