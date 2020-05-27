@@ -18,13 +18,14 @@ import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JSlider;
 import javax.swing.BorderFactory;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import java.util.Random;
 
-public class GameGrid {
+public class GameGrid extends JFrame {
 
     /* Dimensions of game grid */
     private int num_rows;
@@ -38,6 +39,9 @@ public class GameGrid {
 
     private GridIdentifier[][] grid;
     private GridPanel[][] gridPanels;
+
+    /* Main panel with the game grid */
+    private JPanel mainPanel;
 
     /* Rule set (responsible for taking in the current game grid
      * as input and outputting the next state of the game grid as
@@ -90,10 +94,10 @@ public class GameGrid {
 
     private JPanel initGridPanel() {
         /* Initializes grid panel for game of life */
-        JPanel mainPanel = new JPanel(new GridLayout(this.num_rows, this.num_cols));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(this.GAP, this.GAP, this.GAP, this.GAP));
-        mainPanel.setBackground(BG);
-        mainPanel.setSize(new Dimension(480, 480));
+        JPanel gameGridPanel = new JPanel(new GridLayout(this.num_rows, this.num_cols));
+        gameGridPanel.setBorder(BorderFactory.createEmptyBorder(this.GAP, this.GAP, this.GAP, this.GAP));
+        gameGridPanel.setBackground(BG);
+        gameGridPanel.setSize(new Dimension(480, 480));
         this.gridPanels = new GridPanel[num_rows][num_cols];
         this.grid = new GridIdentifier[num_rows][num_cols];
 
@@ -102,11 +106,11 @@ public class GameGrid {
                 /* Place empty space in game grid */
                 this.gridPanels[i][j] = new GridPanel(GridIdentifier.EMPTY_SPACE, i, j);
                 this.grid[i][j] = GridIdentifier.EMPTY_SPACE;
-                mainPanel.add(this.gridPanels[i][j]);
+                gameGridPanel.add(this.gridPanels[i][j]);
             }
         }
 
-        return mainPanel;
+        return gameGridPanel;
     }
 
     class GridPanel extends JPanel {
@@ -169,11 +173,19 @@ public class GameGrid {
         stopButton.setVisible(true);
         stopButton.addActionListener(new StopListener());
 
+        /* Slider to adjust the size of the game grid before the game 
+         * is run */
+        JSlider dimSlider = new JSlider(JSlider.HORIZONTAL, 20, 50, 20);
+        dimSlider.addChangeListener(new DimSliderListener());
+
+
         /* Combo box with predefined starting colonies */
         buttonPanel.setLayout(new FlowLayout());
         buttonPanel.add(startButton);
         buttonPanel.add(stopButton);
+        buttonPanel.add(dimSlider);
         buttonPanel.setVisible(true);
+
 
         return buttonPanel;
     }                           
@@ -194,6 +206,15 @@ public class GameGrid {
     class StopListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             gameStartTimer.stop();
+        }
+    }
+
+    class DimSliderListener implements ChangeListener {
+        public void stateChanged(ChangeEvent ev) {
+           this.num_rows = this.num_cols = ev.getSource().getValue();
+           remove(mainPanel);
+           mainPanel = initGridPanel();
+           getContentPane.add(mainPanel, BorderLayout.CENTER);
         }
     }
 
@@ -218,22 +239,30 @@ public class GameGrid {
     public void constructGUI() {
 
         /* Initialize panel holding game grid */
-        JPanel gameGridPanel = initGridPanel();
+//        JPanel gameGridPanel = initGridPanel();
+        mainPanel = initGridPanel();
 
         /* Initialize panel for game control buttons */
         JPanel buttonPanel = initButtonPanel();
 
-        JFrame frame = new JFrame("Game of Life");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(gameGridPanel, BorderLayout.CENTER);
-        frame.add(buttonPanel, BorderLayout.SOUTH);
+//        JFrame frame = new JFrame("Game of Life");
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        frame.getContentPane().add(gameGridPanel, BorderLayout.CENTER);
+//        frame.add(buttonPanel, BorderLayout.SOUTH);
+        setDefaultColseOperation(JFrame.EXIT_ON_CLOSE);
+        getContentPane.add(mainPanel, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
 
-        frame.pack();
+//        frame.pack();
 //        frame.setLocationByPlatform(true);
-        frame.setLocationRelativeTo(null);
+        pack();
+        setLocationRelativeTo(null);
+//        frame.setLocationRelativeTo(null);
 
-        frame.setVisible(true);
-        frame.setSize(new Dimension(480, 480));
+//        frame.setVisible(true);
+//        frame.setSize(new Dimension(480, 480));
+        setVisible(true);
+        setSize(new Dimension(480, 480));
     }                           
 
 }
