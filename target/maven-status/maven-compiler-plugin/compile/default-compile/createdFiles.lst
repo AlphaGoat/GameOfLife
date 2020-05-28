@@ -1,7 +1,9 @@
+com/alphagoat/maven/GameGrid$ResetListener.class
 com/alphagoat/maven/GridIdentifier.class
 com/alphagoat/maven/GameGrid.class
 com/alphagoat/maven/GameGrid$GridPanel$PanelMouseListener.class
 com/alphagoat/maven/App.class
+com/alphagoat/maven/GameGrid$DimSliderListener.class
 com/alphagoat/maven/GameGrid$StartListener.class
 com/alphagoat/maven/GameGrid$GridPanel.class
 com/alphagoat/maven/GameGrid$StopListener.class

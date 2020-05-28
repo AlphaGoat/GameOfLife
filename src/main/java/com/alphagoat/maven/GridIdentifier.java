@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 public enum GridIdentifier {
     EMPTY_SPACE(0, Color.WHITE),
-    COLONY(1, Color.YELLOW);
+    COLONY(1, Color.BLUE);
 
     private int value;
     private Color idColor;

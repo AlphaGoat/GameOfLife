@@ -4,6 +4,7 @@
 package com.alphagoat.maven;
 
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FlowLayout;
@@ -14,6 +15,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -33,8 +36,6 @@ public class GameGrid extends JFrame {
 
     private int GAP = 3;
     private Color BG = Color.BLACK;
-    private Color EMPTY_COLOR = Color.WHITE;
-    private Color COLONY_COLOR = Color.YELLOW;
     private boolean stopFlag = false;
 
     private GridIdentifier[][] grid;
@@ -47,6 +48,10 @@ public class GameGrid extends JFrame {
      * as input and outputting the next state of the game grid as
      * output */
     private RuleSet ruleSet = new RuleSet();
+
+    /* Widgets for bottom panel (start/stop button and grid dimension slider) */
+    JButton startButton, stopButton, resetButton;
+    JSlider dimSlider; 
 
     public static void main(String args[]) {
 
@@ -92,14 +97,20 @@ public class GameGrid extends JFrame {
         this.num_cols = num_cols;
     }
 
+    private void resetDims(int num_rows, int num_cols) {
+        /* Function to reset internal dimension variables of grid */
+        this.num_rows = num_rows;
+        this.num_cols = num_cols;
+    }
+
     private JPanel initGridPanel() {
         /* Initializes grid panel for game of life */
         JPanel gameGridPanel = new JPanel(new GridLayout(this.num_rows, this.num_cols));
         gameGridPanel.setBorder(BorderFactory.createEmptyBorder(this.GAP, this.GAP, this.GAP, this.GAP));
         gameGridPanel.setBackground(BG);
         gameGridPanel.setSize(new Dimension(480, 480));
-        this.gridPanels = new GridPanel[num_rows][num_cols];
-        this.grid = new GridIdentifier[num_rows][num_cols];
+        this.gridPanels = new GridPanel[this.num_rows][this.num_cols];
+        this.grid = new GridIdentifier[this.num_rows][this.num_cols];
 
         for (int i = 0; i < gridPanels.length; i++) {
             for (int j = 0; j < gridPanels[i].length; j++) {
@@ -111,6 +122,17 @@ public class GameGrid extends JFrame {
         }
 
         return gameGridPanel;
+    }
+
+    private void resetGrid() {
+        /* Reset all grid spaces to be empty */
+        for (int i = 0; i < this.grid.length; i++) {
+            for (int j = 0; j < this.grid[i].length; j++) {
+                this.grid[i][j] = GridIdentifier.EMPTY_SPACE;
+                this.gridPanels[i][j].identifier = this.grid[i][j];
+                this.gridPanels[i][j].changeColor();
+            }
+        }
     }
 
     class GridPanel extends JPanel {
@@ -162,30 +184,43 @@ public class GameGrid extends JFrame {
         JPanel buttonPanel = new JPanel();
 
         /* Button to start game of life */
-        JButton startButton = new JButton();
+        startButton = new JButton();
         startButton.setText("Start");
         startButton.setVisible(true);
         startButton.addActionListener(new StartListener());
 
         /* Button to stop game of life at current grid state */
-        JButton stopButton = new JButton();
+        stopButton = new JButton();
         stopButton.setText("Stop");
         stopButton.setVisible(true);
         stopButton.addActionListener(new StopListener());
 
+        /* Button to clear board and reset Game of Life */
+        resetButton = new JButton();
+        resetButton.setText("Reset");
+        resetButton.setVisible(true);
+        resetButton.addActionListener(new ResetListener());
+
         /* Slider to adjust the size of the game grid before the game 
          * is run */
-        JSlider dimSlider = new JSlider(JSlider.HORIZONTAL, 20, 50, 20);
+        dimSlider = new JSlider(JSlider.HORIZONTAL, 20, 50, num_rows);
         dimSlider.addChangeListener(new DimSliderListener());
-
+        dimSlider.setMajorTickSpacing(5);
+        dimSlider.setMinorTickSpacing(1);
+        dimSlider.setPaintTicks(true);
+        dimSlider.setPaintLabels(true);
 
         /* Combo box with predefined starting colonies */
+        /* [TO IMPLEMENT LATER] */
+
+
+        /* Add all widgets to main panel */
         buttonPanel.setLayout(new FlowLayout());
         buttonPanel.add(startButton);
         buttonPanel.add(stopButton);
+        buttonPanel.add(resetButton);
         buttonPanel.add(dimSlider);
         buttonPanel.setVisible(true);
-
 
         return buttonPanel;
     }                           
@@ -209,12 +244,30 @@ public class GameGrid extends JFrame {
         }
     }
 
+    class ResetListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            gameStartTimer.stop();
+            resetGrid();
+        }
+    }
+
     class DimSliderListener implements ChangeListener {
+        /* Implements method for slider widget 
+         * resizes game grid based on input from slider 
+         * This consists of removing current grid from
+         * the main panel, then running initGrid again
+         * with new dimensions and repainting it on main panel */
         public void stateChanged(ChangeEvent ev) {
-           this.num_rows = this.num_cols = ev.getSource().getValue();
-           remove(mainPanel);
-           mainPanel = initGridPanel();
-           getContentPane.add(mainPanel, BorderLayout.CENTER);
+            if (ev.getSource() == dimSlider) {
+                int dim = dimSlider.getValue();
+                resetDims(dim, dim);
+                Container contain = getContentPane();
+                contain.remove(mainPanel);
+                mainPanel = initGridPanel();
+                contain.add(mainPanel, BorderLayout.CENTER);
+                contain.validate();
+                contain.repaint();
+            }
         }
     }
 
@@ -237,6 +290,8 @@ public class GameGrid extends JFrame {
     }
 
     public void constructGUI() {
+        
+        setTitle("Game Of Life");
 
         /* Initialize panel holding game grid */
 //        JPanel gameGridPanel = initGridPanel();
@@ -249,8 +304,8 @@ public class GameGrid extends JFrame {
 //        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 //        frame.getContentPane().add(gameGridPanel, BorderLayout.CENTER);
 //        frame.add(buttonPanel, BorderLayout.SOUTH);
-        setDefaultColseOperation(JFrame.EXIT_ON_CLOSE);
-        getContentPane.add(mainPanel, BorderLayout.CENTER);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        getContentPane().add(mainPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
 
 //        frame.pack();
